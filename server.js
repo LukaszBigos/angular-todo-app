@@ -1,8 +1,16 @@
 const express = require('express');
+const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 const db = new sqlite3.Database('./todos.db');
+
+app.use(
+  cors({
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  }),
+);
 
 app.use(express.json());
 
