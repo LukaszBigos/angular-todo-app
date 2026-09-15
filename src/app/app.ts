@@ -71,4 +71,27 @@ export class App {
       console.error('Failed to add todo:', error);
     }
   }
+
+  protected async toggleTodo(id: number, event: Event): Promise<void> {
+    const checkbox = event.target as HTMLInputElement;
+    const completed = checkbox.checked;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update todo: ${response.status}`);
+      }
+
+      await this.loadTodos();
+    } catch (error) {
+      console.error('Failed to update todo:', error);
+    }
+  }
 }
