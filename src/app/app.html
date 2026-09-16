@@ -46,6 +46,14 @@
                 {{ todo.text }}
               </span>
             </label>
+
+            <button
+              type="button"
+              (click)="deleteTodo(todo.id)"
+              class="text-red-500 hover:text-red-700"
+            >
+              Delete
+            </button>
           </li>
         } @empty {
           <li

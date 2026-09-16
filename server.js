@@ -71,12 +71,14 @@ app.patch('/api/todos/:id', (req, res) => {
 });
 
 app.delete('/api/todos/:id', (req, res) => {
-  db.run('DELETE FROM todos WHERE id = ?', [req.params.id], function (err) {
+  const { id } = req.params;
+
+  db.run('DELETE FROM todos WHERE id = ?', [id], function (err) {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({ error: 'Failed to delete todo' });
     }
 
-    res.json({ deleted: this.changes > 0 });
+    res.json({ success: true });
   });
 });
 
