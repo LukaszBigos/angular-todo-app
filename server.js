@@ -55,19 +55,45 @@ app.post('/api/todos', (req, res) => {
 });
 
 app.patch('/api/todos/:id', (req, res) => {
-  const { completed } = req.body;
+  const { id } = req.params;
+  const { text, completed } = req.body;
 
-  db.run(
-    'UPDATE todos SET completed = ? WHERE id = ?',
-    [completed ? 1 : 0, req.params.id],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
+  const updates = [];
+  const values = [];
+
+  if (text !== undefined) {
+    if (typeof text !== 'string' || !text.trim()) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    updates.push('text = ?');
+    values.push(text.trim());
+  }
+
+  if (completed !== undefined) {
+    const normalizedCompleted = Number(Boolean(completed));
+
+    updates.push('completed = ?');
+    values.push(normalizedCompleted);
+  }
+
+  if (!updates.length) {
+    return res.status(400).json({ error: 'No valid field to update' });
+  }
+
+  db.run(`UPDATE todos SET ${updates.join(', ')} WHERE id = ?`, [...values, id], function (err) {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to update todo' });
+    }
+
+    db.get('SELECT * FROM todos WHERE id = ?', [id], (getErr, row) => {
+      if (getErr) {
+        return res.status(500).json({ error: 'Failed to fetch updated todo' });
       }
 
-      res.json({ id: Number(req.params.id), completed: !!completed });
-    },
-  );
+      res.json(row);
+    });
+  });
 });
 
 app.delete('/api/todos/:id', (req, res) => {
