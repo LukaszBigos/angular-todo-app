@@ -209,7 +209,9 @@
 .todo-text {
   color: #0f172a;
   word-break: break-word;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .todo-text.is-complete {
