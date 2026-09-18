@@ -1,10 +1,5 @@
-import { AfterViewChecked, Component, signal, ViewChild } from '@angular/core';
-
-type Todo = {
-  id: number;
-  text: string;
-  completed: boolean;
-};
+import { AfterViewChecked, Component, inject, signal, ViewChild } from '@angular/core';
+import { Todo, TodoService } from './todo.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +9,8 @@ type Todo = {
 export class App implements AfterViewChecked {
   @ViewChild('editInput')
   private editInput?: { nativeElement: HTMLInputElement };
+
+  private readonly todoService = inject(TodoService);
 
   protected readonly title = signal('angular-todo-app');
   protected readonly newTodo = signal('');
@@ -44,24 +41,7 @@ export class App implements AfterViewChecked {
 
   private async loadTodos(): Promise<void> {
     try {
-      const response = await fetch('http://localhost:3000/api/todos');
-
-      if (!response.ok) {
-        throw new Error(`Failed to load todos: ${response.status}`);
-      }
-
-      const data = (await response.json()) as Array<{
-        id: number;
-        text: string;
-        completed: number | boolean;
-      }>;
-
-      this.todos.set(
-        data.map((todo) => ({
-          ...todo,
-          completed: Boolean(todo.completed),
-        })),
-      );
+      this.todos.set(await this.todoService.loadTodos());
     } catch (error) {
       console.error('Failed to load todos:', error);
     }
@@ -75,18 +55,7 @@ export class App implements AfterViewChecked {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/todos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to add todo: ${response.status}`);
-      }
-
+      await this.todoService.addTodo(text);
       this.newTodo.set('');
       await this.loadTodos();
     } catch (error) {
@@ -99,18 +68,7 @@ export class App implements AfterViewChecked {
     const completed = checkbox.checked;
 
     try {
-      const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ completed }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update todo: ${response.status}`);
-      }
-
+      await this.todoService.updateTodo(id, { completed });
       await this.loadTodos();
     } catch (error) {
       console.error('Failed to update todo:', error);
@@ -119,14 +77,7 @@ export class App implements AfterViewChecked {
 
   protected async deleteTodo(id: number): Promise<void> {
     try {
-      const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete todo: ${response.status}`);
-      }
-
+      await this.todoService.deleteTodo(id);
       await this.loadTodos();
     } catch (error) {
       console.error('Failed to delete todo:', error);
@@ -141,18 +92,7 @@ export class App implements AfterViewChecked {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/todos/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: trimmedText }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update todo text: ${response.status}`);
-      }
-
+      await this.todoService.updateTodo(id, { text: trimmedText });
       await this.loadTodos();
     } catch (error) {
       console.error('Failed to update todo text:', error);
