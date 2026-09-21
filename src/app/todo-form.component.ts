@@ -4,6 +4,7 @@ import { Component, EventEmitter, Output, signal } from '@angular/core';
   selector: 'app-todo-form',
   standalone: true,
   templateUrl: './todo-form.component.html',
+  styleUrl: './todo-form.component.css',
 })
 export class TodoFormComponent {
   protected readonly value = signal('');

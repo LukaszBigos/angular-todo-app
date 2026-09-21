@@ -5,6 +5,7 @@ import { Todo } from './todo.service';
   selector: 'app-todo-list',
   standalone: true,
   templateUrl: './todo-list.component.html',
+  styleUrl: './todo-list.component.css',
 })
 export class TodoListComponent {
   @Input() todos: Todo[] = [];
