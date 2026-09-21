@@ -1,8 +1,12 @@
 import { AfterViewChecked, Component, inject, signal, ViewChild } from '@angular/core';
 import { Todo, TodoService } from './todo.service';
+import { TodoFormComponent } from './todo-form.component';
+import { TodoListComponent } from './todo-list.component';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [TodoFormComponent, TodoListComponent],
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
@@ -13,7 +17,6 @@ export class App implements AfterViewChecked {
   private readonly todoService = inject(TodoService);
 
   protected readonly title = signal('angular-todo-app');
-  protected readonly newTodo = signal('');
   protected readonly todos = signal<Todo[]>([]);
   protected readonly editingTodoId = signal<number | null>(null);
   protected readonly editingText = signal('');
@@ -47,26 +50,22 @@ export class App implements AfterViewChecked {
     }
   }
 
-  protected async addTodo(): Promise<void> {
-    const text = this.newTodo().trim();
+  protected async addTodo(text: string): Promise<void> {
+    const trimmedText = text.trim();
 
-    if (!text) {
+    if (!trimmedText) {
       return;
     }
 
     try {
-      await this.todoService.addTodo(text);
-      this.newTodo.set('');
+      await this.todoService.addTodo(trimmedText);
       await this.loadTodos();
     } catch (error) {
       console.error('Failed to add todo:', error);
     }
   }
 
-  protected async toggleTodo(id: number, event: Event): Promise<void> {
-    const checkbox = event.target as HTMLInputElement;
-    const completed = checkbox.checked;
-
+  protected async toggleTodo(id: number, completed: boolean): Promise<void> {
     try {
       await this.todoService.updateTodo(id, { completed });
       await this.loadTodos();
@@ -104,15 +103,24 @@ export class App implements AfterViewChecked {
     this.editingText.set(todo.text);
   }
 
-  protected async saveEdit(id: number): Promise<void> {
-    const text = this.editingText().trim();
+  protected async saveEdit({ id, text }: { id: number; text: string }): Promise<void> {
+    const trimmedText = text.trim();
 
-    if (!text) {
+    if (!trimmedText) {
       return;
     }
 
-    await this.updateTodoText(id, text);
+    await this.updateTodoText(id, trimmedText);
     this.editingTodoId.set(null);
     this.editingText.set('');
+  }
+
+  protected cancelEdit(): void {
+    this.editingTodoId.set(null);
+    this.editingText.set('');
+  }
+
+  protected setEditingText(value: string): void {
+    this.editingText.set(value);
   }
 }

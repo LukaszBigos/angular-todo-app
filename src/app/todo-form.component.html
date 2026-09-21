@@ -1,0 +1,11 @@
+<form class="todo-form" (submit)="$event.preventDefault(); submit()">
+  <input
+    [value]="value()"
+    (input)="value.set($any($event.target).value)"
+    type="text"
+    placeholder="Add a new task..."
+    class="todo-input"
+  />
+
+  <button type="submit" class="todo-button todo-button--primary">Add</button>
+</form>

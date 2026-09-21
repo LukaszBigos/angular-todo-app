@@ -6,84 +6,19 @@
         <h1 class="todo-title">My Tasks</h1>
       </header>
 
-      <form class="todo-form" (submit)="$event.preventDefault(); addTodo()">
-        <input
-          [value]="newTodo()"
-          (input)="newTodo.set($event.target.value)"
-          type="text"
-          placeholder="Add a new task..."
-          class="todo-input"
-        />
+      <app-todo-form (add)="addTodo($event)" />
 
-        <button type="submit" class="todo-button todo-button--primary">Add</button>
-      </form>
-
-      <ul class="todo-list">
-        @for (todo of todos(); track todo.id) {
-          <li class="todo-item">
-            @if (editingTodoId() === todo.id) {
-              <div class="todo-edit-row">
-                <input
-                  #editInput
-                  [value]="editingText()"
-                  (input)="editingText.set($any($event.target).value)"
-                  (keydown.enter)="saveEdit(todo.id)"
-                  class="todo-edit-input"
-                />
-
-                <button
-                  type="button"
-                  (click)="saveEdit(todo.id)"
-                  class="todo-button todo-button--save"
-                >
-                  Save
-                </button>
-
-                <button
-                  type="button"
-                  (click)="editingTodoId.set(null)"
-                  class="todo-button todo-button--muted"
-                >
-                  Cancel
-                </button>
-              </div>
-            } @else {
-              <label class="todo-main">
-                <input
-                  type="checkbox"
-                  class="todo-checkbox"
-                  [checked]="todo.completed"
-                  (change)="toggleTodo(todo.id, $event)"
-                />
-
-                <span class="todo-text" [class.is-complete]="todo.completed">
-                  {{ todo.text }}
-                </span>
-              </label>
-
-              <div class="todo-actions">
-                <button
-                  type="button"
-                  (click)="startEdit(todo)"
-                  class="todo-action todo-action--edit"
-                >
-                  Edit
-                </button>
-
-                <button
-                  type="button"
-                  (click)="deleteTodo(todo.id)"
-                  class="todo-action todo-action--delete"
-                >
-                  Delete
-                </button>
-              </div>
-            }
-          </li>
-        } @empty {
-          <li class="todo-empty">No tasks yet. Add your first one!</li>
-        }
-      </ul>
+      <app-todo-list
+        [todos]="todos()"
+        [editingTodoId]="editingTodoId()"
+        [editingText]="editingText()"
+        (toggle)="toggleTodo($event.id, $event.completed)"
+        (delete)="deleteTodo($event)"
+        (startEdit)="startEdit($event)"
+        (saveEdit)="saveEdit($event)"
+        (cancelEdit)="cancelEdit()"
+        (editingTextChange)="setEditingText($event)"
+      />
     </section>
   </main>
 </div>

@@ -1,0 +1,49 @@
+<ul class="todo-list">
+  @for (todo of todos; track todo.id) {
+    <li class="todo-item">
+      @if (editingTodoId === todo.id) {
+        <div class="todo-edit-row">
+          <input
+            [value]="editingText"
+            (input)="onInputEdit($any($event.target).value)"
+            (keydown.enter)="onSaveEdit(todo.id)"
+            class="todo-edit-input"
+          />
+
+          <button type="button" (click)="onSaveEdit(todo.id)" class="todo-button todo-button--save">
+            Save
+          </button>
+
+          <button type="button" (click)="onCancelEdit()" class="todo-button todo-button--muted">
+            Cancel
+          </button>
+        </div>
+      } @else {
+        <label class="todo-main">
+          <input
+            type="checkbox"
+            class="todo-checkbox"
+            [checked]="todo.completed"
+            (change)="onToggle(todo.id, $event)"
+          />
+
+          <span class="todo-text" [class.is-complete]="todo.completed">
+            {{ todo.text }}
+          </span>
+        </label>
+
+        <div class="todo-actions">
+          <button type="button" (click)="onStartEdit(todo)" class="todo-action todo-action--edit">
+            Edit
+          </button>
+
+          <button type="button" (click)="onDelete(todo.id)" class="todo-action todo-action--delete">
+            Delete
+          </button>
+        </div>
+      }
+    </li>
+  } @empty {
+    <li class="todo-empty">No tasks yet. Add your first one!</li>
+  }
+</ul>
